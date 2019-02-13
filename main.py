@@ -13,7 +13,10 @@ window = Tk()
 whiteScl = Scale(window, label="WHITE", from_="0", to="255", length="400", orient="horizontal")
 stepScl = Scale(window, label="STEP", from_="3", to="31", resolution="2", length="400", orient="horizontal")
 cnstScl = Scale(window, label="C", from_="-100", to="100", resolution=".05", length="400", orient="horizontal")
-
+gridSizeScl = Scale(window, label="Grid Size", from_="1", to="30", resolution="1", length="400", orient="horizontal")
+clipLimitScl = Scale(window, label="Clip Limit", from_="0", to="10", resolution=".05", length="400", orient="horizontal")
+gridSizeScl.set(8)
+clipLimitScl.set(3.0)
 global thr
 thr = cv2.THRESH_BINARY_INV
 thrGroup = [
@@ -32,33 +35,27 @@ threshVals = [
     cv2.THRESH_TOZERO,
     cv2.THRESH_TOZERO_INV
 ]
-
-def testContrast(frame):
-    lab = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
-    # -----Splitting the LAB image to different channels-------------------------
-    l, a, b = cv2.split(lab)
-
-    # -----Applying CLAHE to L-channel-------------------------------------------
-    clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
-    cl = clahe.apply(l)
-    #cv2.imshow('CLAHE output', cl)
-
-    # -----Merge the CLAHE enhanced L-channel with the a and b channel-----------
-    limg = cv2.merge((cl, a, b))
-    #cv2.imshow('limg', limg)
-
-    # -----Converting image from LAB Color model to RGB model--------------------
-    final = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
-    print(final)
-    return final
-
 def setThresh(ind):
     globals()["thr"] = threshVals[ind]
     print(thr)
 
+cap = cv2.VideoCapture(0)
+
+def contrast(img):
+    lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+    l, a, b = cv2.split(lab)
+    clahe = cv2.createCLAHE(clipLimit=clipLimitScl.get(), tileGridSize=(gridSizeScl.get(), gridSizeScl.get()))
+    cl = clahe.apply(l)
+    limg = cv2.merge((cl, a, b))
+    final = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
+    return final
+
 
 def processLoop():
-    frame = numpy.array(sct.grab(monitor))
+    ####USE FOR ONSCREEN VIDEO
+    #frame = numpy.array(sct.grab(monitor))
+    rect,frame =cap.read()
+    frame = contrast(frame)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # Start timer
     timer = cv2.getTickCount()
@@ -71,7 +68,6 @@ def processLoop():
     # ------------------------------- ---------------------------------------------------------
     # compute the absolute difference between the current frame and
     # first frame
-    contFrame = testContrast(frame)
     gray1 = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     #gray1 = cv2.cvtColor(contFrame, cv2.COLOR_BGR2GRAY)
     gray1 = cv2.GaussianBlur(gray1, (11, 11), 0)
@@ -113,12 +109,14 @@ def processLoop():
     # Display FPS on frame
     #cv2.putText(frame, "FPS : " + str(int(fps)), (100, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2);
 
-    cv2.imshow("tr", frameDelta)
+ #   cv2.imshow("tr", gray)
+ #   cv2.imshow("tr1", gray1)
 
     cv2.imshow("-", frame)
 
 
 def task():
+    #window.after(10, processLoop())  # reschedule event in 2 seconds
     window.after(10, processLoop())  # reschedule event in 2 seconds
 
     window.after(10, task)  # reschedule event in 2 seconds
@@ -162,6 +160,8 @@ if __name__ == '__main__':
         whiteScl.pack(side="top")
         stepScl.pack(side="top")
         cnstScl.pack(side="top")
+        gridSizeScl.pack(side="top")
+        clipLimitScl.pack(side="top")
 
         for btn in thrGroup:
             btn.pack(anchor=W)
