@@ -27,7 +27,7 @@ thrGroup = [
 #    Radiobutton(window, text="TOZERO_INV", padx=20, command=lambda: setThresh(4), value=4)
 
 ]
-
+print(cv2.__version__)
 threshVals = [
     cv2.THRESH_BINARY,
     cv2.THRESH_BINARY_INV,
