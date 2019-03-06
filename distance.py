@@ -34,7 +34,7 @@ KNOWN_DISTANCE = 24.0
 
 # initialize the known object width, which in this case, the piece of
 # paper is 12 inches wide
-KNOWN_WIDTH = 11.0
+KNOWN_WIDTH = 1.0
 
 # load the furst image that contains an object that is KNOWN TO BE 2 feet
 # from our camera, then find the paper marker in the image, and initialize

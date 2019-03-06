@@ -1,107 +1,92 @@
-import time
-import win32api
-from datetime import datetime
-
 import numpy
-import pyautogui as aut
-import keyboard
-import threading
 from cv2 import cv2
-from mss import mss
 
-cnt = 0
+viewNoiseFilter = False
+viewInput = True
+viewRegions = False
+viewFilter = True
 
-viewRegions = True
-viewFilter = False
-enableClicker = True
-enableScreenshot = True
-enableShop = False
-selectMode = False
-rectBounds = []
-rect = []
-prevScr = 0
-currScr = 0
-# define the list of boundaries
-boundaries = [
-    ([21, 62, 154], [29, 139, 231]),  # golden cookie
-    ([19, 91, 106], [80, 240, 255])  # shop tab
-]
+ctrHSV = [0, 0, 0]
+ctrBGR = [0, 0, 0]
+ctrPos = (0, 0)
+boundaries = ([0, 0, 0], [255, 255, 255])  # define the list of color HSV boundaries
 
+pScr = 0
+cScr = 0
+blur = 1
+trHigh = 255
+trLow = 0
+trVals = (255, 0, 1)
+nVals = (5, 11, 1, 1)
 
-def wait():
-    global rectBounds, selectMode, rect
-    state_left = win32api.GetKeyState(0x01)  # Left button down = 0 or 1. Button up = -127 or -128
-    a = win32api.GetKeyState(0x01)
-    if a != state_left:  # Button state changed
-        pos = aut.position()
-        if pos not in rectBounds:
-            rectBounds.append(pos)
-
-        print("CLICK", pos, rectBounds)
-        if len(rectBounds) == 2:
-            selectMode = False
-            print(rectBounds)
-            a = rectBounds[0]
-            b = rectBounds[1]
-            w = abs(a.x - b.x)
-            h = abs(a.y - b.y)
-            x = min(a.x, b.x)
-            y = min(a.y, b.y)
-            rect = [x, y, w, h]
-            print("RECT", x, y, w, h)
+cam = cv2.VideoCapture(0)
 
 
-def checkScreenRes():
-    while selectMode:
-        wait()
+def updateBnd(vals):
+    global boundaries
+    boundaries = (vals[0], vals[1])
 
 
-def clickShop(thresh):
-    keypoints = findRegions(thresh, 30, 0)
-    print()
-    # global currScr, enableClicker
-    # available = []
-    # for i in range(0, 12):
-    #    st = False
-    #    x = 0
-    #    y = 0
-    #    for j in range(0, 10):
-    #        for k in range(0, 10):
-    #            x = rect[0] + rect[2] - 170 + j
-    #            y = rect[1] + 353 + (i * 64) + k
-    #            r, g, b = currScr.pixel(x, y)
-    #            if 255 > g > 180:
-    #                st = True
-    #    if st:
-    #        available.append((x, y))
-    # if enableClicker:
-    #    for i in reversed(available):
-    #        x, y = i
-    #        aut.click(x, y)
-    #    if len(available) > 0:
-    #        aut.moveTo(100, 450)
+def updateThr(vals):
+    global trVals
+    print(vals)
+    trVals = vals
 
 
-def searchColor(index, lt, ut, blur):
-    global boundaries, currScr
+def updateNoise(vals):
+    global nVals
+    print(vals)
+    nVals = vals
+
+
+def adder(l, h):
+    global boundaries
+    boundaries.insert(0, (l, h))
+
+
+def getCenterVal():  # ===============================
+    global ctrPos, cScr
+    y = int(len(cScr) / 2)
+    x = int(len(cScr[0]) / 2)
+    ctrPos = (x, y)
+    bgr = numpy.uint8([[cScr[y][x]]])
+    hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)[0][0]
+    bgr = bgr[0][0]
+    print("BGR", bgr, "HSV", hsv)
+    return hsv
+
+
+def view(b, name, img):
+    if b:
+        cv2.imshow(name, img)
+        cv2.waitKey(1)
+
+
+def format(img):
+    return numpy.array(img, dtype="uint8")
+
+
+def searchColor(scr, lower, upper, thr, noise,show):
     c = 0
-    scr = numpy.array(currScr, dtype="uint8")
-    scr = cv2.cvtColor(scr, cv2.COLOR_BGR2HSV)
-    # for (lower, upper) in boundaries:
-    (lower, upper) = boundaries[index]
-    lower = numpy.array(lower, dtype="uint8")
-    upper = numpy.array(upper, dtype="uint8")
+
+    # scr = cv2.resize(scr, (240, 160))
+    #scr = cv2.fastNlMeansDenoisingColored(scr, None, noise[2], noise[3], noise[0], noise[1])
+    #view(False, "Noise", scr)
+    lower = format(lower)
+    upper = format(upper)
     mask = cv2.inRange(scr, lower, upper)
+
     output = cv2.bitwise_and(scr, scr, mask=mask)
 
-    output = cv2.blur(output, (blur, blur))
+    output = cv2.blur(output, (thr[2], thr[2]))
+
     thresh = cv2.cvtColor(output, cv2.COLOR_HSV2BGR)
     thresh = cv2.cvtColor(thresh, cv2.COLOR_BGR2GRAY)
-    ret, thresh = cv2.threshold(thresh, lt, ut, cv2.THRESH_BINARY_INV)
-    if viewFilter:
-        cv2.imshow("-", thresh)
-        cv2.moveWindow("-", 900, 0)
-        cv2.waitKey(0)
+    ret, thresh = cv2.threshold(thresh, thr[1], thr[0], cv2.THRESH_BINARY)
+
+    view(show, "Input", scr)
+    view(show, "Thresh", thresh)
+
     c += 1
     return thresh
 
@@ -121,56 +106,18 @@ def findRegions(thresh, area, circ):
     trans_blobs = cv2.drawKeypoints(thresh, \
                                     keypoints, numpy.array([]), (0, 0, 255),
                                     cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-    if viewRegions:
-        cv2.imshow("-", trans_blobs)
-        cv2.waitKey(0)
+    view(viewRegions, "Regions", trans_blobs)
     return keypoints
 
 
-def click(thresh):
-    global cnt
-    keypoints = findRegions(thresh, 3000, .5)
-    #keypoints.sort(key=lambda x: x.pt[1], reverse=False)
-    #if len(keypoints)>0:
-    #    k = keypoints[len(keypoints)-1]
-    #    if k.size > 35:
-    #        x = int(k.pt[0])
-    #        y = int(k.pt[1])
-    #        if enableClicker:
-    #            aut.click(x, y)
-    #            aut.moveTo(100, 450)
-    #            cnt += 1
-    #            print(datetime.now(), "Clicked", x, y)
-    #            print("Cou6nt: ", str(cnt))
+def loop(params,show):
+    global pScr, cScr
+    pScr = cScr
+    _, cScr = cam.read()
+    cScr = format(cScr)
+    scr = cv2.cvtColor(cScr, cv2.COLOR_BGR2HSV)
 
-cam =cv2.VideoCapture(0)
-def checker():
-    global rect, prevScr, currScr, flag, hold
-    #threading.Timer(1.0 / 10.0, checker).start()
-    prevScr = currScr
-    _ , currScr = cam.read()
-    click((searchColor(1, 1, 255, 1)))  #click shop and cookies
-
-def mainl():
-    global enableShop, enableClicker, cnt, currScr
-    try:
-        _ , currScr = cam.read()
-        cv2.imshow("0", currScr)
-        cv2.waitKey(0)
-    except KeyboardInterrupt:
-        print('\nDone.')
-    except TypeError:
-        print("typeError")
-
-    # print(aut.position())
-
-
-# ---------script
-#aut.moveTo(100, 450)
-if selectMode:
-    checkScreenRes()
-else:
-    rect = (0, 0, 908, 1079)
-checker()
-while True:
-    mainl()
+    for p in params:
+        if len(p)==4:
+            b = params.index(p) == show
+            searchColor(scr, lower=p[0], upper=p[1], thr=p[2], noise=p[3], show=b)
