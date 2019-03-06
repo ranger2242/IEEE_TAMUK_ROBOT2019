@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="03638efb-8d99-47dc-bf88-cfb53636a61c" name="Default" comment="color filter and tracking added">
-      <change afterPath="$PROJECT_DIR$/basicTracker.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/guis/calibratorGUI.py" afterDir="false" />
+    <list default="true" id="03638efb-8d99-47dc-bf88-cfb53636a61c" name="Default" comment="Added color filter tweaking gui and made the multi color filter">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/colorFinder.py" beforeDir="false" afterPath="$PROJECT_DIR$/colorFinder.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/distance.py" beforeDir="false" afterPath="$PROJECT_DIR$/distance.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -46,12 +41,12 @@
           <entry key="modelFileBuilder" value="6" />
           <entry key="prototxt" value="1" />
           <entry key="py" value="8520" />
-          <entry key="txt" value="61" />
+          <entry key="txt" value="133" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="111" />
+          <entry key="PLAIN_TEXT" value="183" />
           <entry key="Python" value="8526" />
         </counts>
       </usages-collector>
@@ -484,7 +479,14 @@
       <option name="project" value="LOCAL" />
       <updated>1551668998782</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Added color filter tweaking gui and made the multi color filter">
+      <created>1551899580230</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1551899580230</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TodoView">
@@ -498,9 +500,8 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1874" height="1096" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.099228226" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.099228226" />
       <window_info id="Structure" order="1" weight="0.12954795" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -513,7 +514,7 @@
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.32640332" />
       <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.49723452" weight="0.32948583" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5011025" side_tool="true" weight="0.32952183" />
-      <window_info active="true" anchor="bottom" id="Python Console" order="10" sideWeight="0.49889746" visible="true" weight="0.40852392" />
+      <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.49889746" weight="0.40852392" />
       <window_info anchor="bottom" id="Docker" order="11" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" order="12" show_stripe_button="false" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -557,7 +558,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="examples added" />
     <MESSAGE value="color filter and tracking added" />
-    <option name="LAST_COMMIT_MESSAGE" value="color filter and tracking added" />
+    <MESSAGE value="Added color filter tweaking gui and made the multi color filter" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added color filter tweaking gui and made the multi color filter" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
