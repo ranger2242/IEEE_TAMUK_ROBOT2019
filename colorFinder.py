@@ -1,6 +1,6 @@
 import numpy
 from cv2 import cv2
-
+import basic
 viewNoiseFilter = False
 viewInput = True
 viewRegions = False
@@ -56,24 +56,19 @@ def getCenterVal():  # ===============================
     return hsv
 
 
-def view(b, name, img):
-    if b:
-        cv2.imshow(name, img)
-        cv2.waitKey(1)
 
 
-def format(img):
-    return numpy.array(img, dtype="uint8")
-
-
-def searchColor(scr, lower, upper, thr, noise,show):
+def searchColor(scr, lower, upper, thr, noise, show):
     c = 0
+    img=scr.copy()
+    img=cv2.circle(img,(320,240),10,(0,0,255))
 
     # scr = cv2.resize(scr, (240, 160))
-    #scr = cv2.fastNlMeansDenoisingColored(scr, None, noise[2], noise[3], noise[0], noise[1])
-    #view(False, "Noise", scr)
-    lower = format(lower)
-    upper = format(upper)
+    scr = cv2.fastNlMeansDenoisingColored(scr, None, noise[2], noise[3], noise[0], noise[1])
+    basic.view(show, "Input", img)
+
+    lower = basic.format(lower)
+    upper = basic.format(upper)
     mask = cv2.inRange(scr, lower, upper)
 
     output = cv2.bitwise_and(scr, scr, mask=mask)
@@ -84,8 +79,7 @@ def searchColor(scr, lower, upper, thr, noise,show):
     thresh = cv2.cvtColor(thresh, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(thresh, thr[1], thr[0], cv2.THRESH_BINARY)
 
-    view(show, "Input", scr)
-    view(show, "Thresh", thresh)
+    basic.view(False, "Thresh", thresh)
 
     c += 1
     return thresh
@@ -106,18 +100,19 @@ def findRegions(thresh, area, circ):
     trans_blobs = cv2.drawKeypoints(thresh, \
                                     keypoints, numpy.array([]), (0, 0, 255),
                                     cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-    view(viewRegions, "Regions", trans_blobs)
+    basic.view(viewRegions, "Regions", trans_blobs)
     return keypoints
 
 
-def loop(params,show):
+def loop(params, show):
     global pScr, cScr
     pScr = cScr
     _, cScr = cam.read()
-    cScr = format(cScr)
+    cScr = basic.format(cScr)
     scr = cv2.cvtColor(cScr, cv2.COLOR_BGR2HSV)
-
+    threshes = []
     for p in params:
-        if len(p)==4:
+        if len(p) == 4:
             b = params.index(p) == show
-            searchColor(scr, lower=p[0], upper=p[1], thr=p[2], noise=p[3], show=b)
+            threshes.append(searchColor(scr, lower=p[0], upper=p[1], thr=p[2], noise=p[3], show=b))
+    return threshes

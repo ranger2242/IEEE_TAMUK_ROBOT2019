@@ -1,5 +1,10 @@
 from guis.calibratorGUI import CalibratorGUI
+from guis.distanceGUI import DistanceGUI
 
-gui = CalibratorGUI()
+colorGUI = CalibratorGUI()
+distGUI = DistanceGUI()
 
-gui.mainloop()
+while True:
+    threshArr = colorGUI.mainloop()
+    distGUI.mainLoop(threshArr)
+

@@ -142,6 +142,7 @@ class CalibratorGUI:
         self.noiseScl = []
         self.pa = ("0", "255", "1", "400", "horizontal")
         self.window = Tk()
+        self.window.title("COLOR FILTER TWEAKER")
         self.tweakerFrame = Frame(self.window)
         self.threshFrame = Frame(self.tweakerFrame)
         self.threshSubFrame = Frame(self.threshFrame)
@@ -206,6 +207,5 @@ class CalibratorGUI:
             self.setAllSliders()
 
     def mainloop(self):
-        while True:
-            self.window.update()
-            colorFinder.loop(self.bounds, int(self.filterSelected.get()))
+        self.window.update()
+        return colorFinder.loop(self.bounds, int(self.filterSelected.get()))
