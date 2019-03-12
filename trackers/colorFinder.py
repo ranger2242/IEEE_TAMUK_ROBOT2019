@@ -1,6 +1,8 @@
 import numpy
 from cv2 import cv2
-import basic
+import base
+import trackers.obj3dTracker as dec
+
 viewNoiseFilter = False
 viewInput = True
 viewRegions = False
@@ -56,30 +58,25 @@ def getCenterVal():  # ===============================
     return hsv
 
 
-
-
-def searchColor(scr, lower, upper, thr, noise, show):
+def searchColor(scr, lower, upper, thr, show):
     c = 0
-    img=scr.copy()
-    img=cv2.circle(img,(320,240),10,(0,0,255))
+    img = scr.copy()
+    img = cv2.circle(img, (320, 240), 10, (0, 0, 255))
 
     # scr = cv2.resize(scr, (240, 160))
-    scr = cv2.fastNlMeansDenoisingColored(scr, None, noise[2], noise[3], noise[0], noise[1])
-    basic.view(show, "Input", img)
+    base.view(show, "Input", img)
 
-    lower = basic.format(lower)
-    upper = basic.format(upper)
+    lower = base.format(lower)
+    upper = base.format(upper)
     mask = cv2.inRange(scr, lower, upper)
 
     output = cv2.bitwise_and(scr, scr, mask=mask)
-
-    output = cv2.blur(output, (thr[2], thr[2]))
 
     thresh = cv2.cvtColor(output, cv2.COLOR_HSV2BGR)
     thresh = cv2.cvtColor(thresh, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(thresh, thr[1], thr[0], cv2.THRESH_BINARY)
 
-    basic.view(False, "Thresh", thresh)
+    base.view(False, "Thresh", thresh)
 
     c += 1
     return thresh
@@ -100,7 +97,7 @@ def findRegions(thresh, area, circ):
     trans_blobs = cv2.drawKeypoints(thresh, \
                                     keypoints, numpy.array([]), (0, 0, 255),
                                     cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-    basic.view(viewRegions, "Regions", trans_blobs)
+    base.view(viewRegions, "Regions", trans_blobs)
     return keypoints
 
 
@@ -108,11 +105,15 @@ def loop(params, show):
     global pScr, cScr
     pScr = cScr
     _, cScr = cam.read()
-    cScr = basic.format(cScr)
+    cScr = base.format(cScr)
+    scr =cScr.copy()
+    scr = cv2.fastNlMeansDenoisingColored(scr, None, params[0][3][2], params[0][3][3], params[0][3][0], params[0][3][1])
+    scr = cv2.blur(scr, (params[0][2][2], params[0][2][2]))
+    dec.track3d(scr)
     scr = cv2.cvtColor(cScr, cv2.COLOR_BGR2HSV)
     threshes = []
     for p in params:
         if len(p) == 4:
             b = params.index(p) == show
-            threshes.append(searchColor(scr, lower=p[0], upper=p[1], thr=p[2], noise=p[3], show=b))
+            threshes.append(searchColor(scr, lower=p[0], upper=p[1], thr=p[2], show=b))
     return threshes

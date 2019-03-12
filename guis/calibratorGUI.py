@@ -1,5 +1,5 @@
 from tkinter import *
-import colorFinder
+from trackers import colorFinder
 
 
 class CalibratorGUI:
@@ -207,5 +207,6 @@ class CalibratorGUI:
             self.setAllSliders()
 
     def mainloop(self):
+
         self.window.update()
         return colorFinder.loop(self.bounds, int(self.filterSelected.get()))

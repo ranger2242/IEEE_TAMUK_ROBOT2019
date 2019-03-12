@@ -1,5 +1,5 @@
 from tkinter import *
-from distance import DistanceTracker
+from trackers.distance import DistanceTracker
 
 
 class DistanceGUI:

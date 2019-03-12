@@ -1,6 +1,6 @@
 import imutils.convenience as imu
 import numpy as np
-import basic
+import base
 import cv2.cv2
 
 
@@ -10,7 +10,7 @@ class DistanceTracker:
         # convert the image to grayscale, blur it, and detect edges
         gray = cv2.GaussianBlur(gray, (par[0], par[0]), 0)
         edged = cv2.Canny(gray, 35, 125)
-        basic.view(True,"canny",edged)
+        base.view(False, "canny", edged)
         # find the contours in the edged image and keep the largest one;
         # we'll assume that this is our piece of paper in the image
         cnts = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
