@@ -2,6 +2,7 @@ import numpy
 from cv2 import cv2
 import base
 import trackers.obj3dTracker as dec
+import trackers.cornerDetect as corner
 
 viewNoiseFilter = False
 viewInput = True
@@ -13,16 +14,14 @@ ctrBGR = [0, 0, 0]
 ctrPos = (0, 0)
 boundaries = ([0, 0, 0], [255, 255, 255])  # define the list of color HSV boundaries
 
-pScr = 0
-cScr = 0
+
 blur = 1
 trHigh = 255
 trLow = 0
 trVals = (255, 0, 1)
 nVals = (5, 11, 1, 1)
 
-cam = cv2.VideoCapture(0)
-
+cScr=0
 
 def updateBnd(vals):
     global boundaries
@@ -47,7 +46,7 @@ def adder(l, h):
 
 
 def getCenterVal():  # ===============================
-    global ctrPos, cScr
+    global ctrPos,cScr
     y = int(len(cScr) / 2)
     x = int(len(cScr[0]) / 2)
     ctrPos = (x, y)
@@ -68,6 +67,7 @@ def searchColor(scr, lower, upper, thr, show):
 
     lower = base.format(lower)
     upper = base.format(upper)
+
     mask = cv2.inRange(scr, lower, upper)
 
     output = cv2.bitwise_and(scr, scr, mask=mask)
@@ -101,19 +101,16 @@ def findRegions(thresh, area, circ):
     return keypoints
 
 
-def loop(params, show):
-    global pScr, cScr
-    pScr = cScr
-    _, cScr = cam.read()
-    cScr = base.format(cScr)
-    scr =cScr.copy()
-    scr = cv2.fastNlMeansDenoisingColored(scr, None, params[0][3][2], params[0][3][3], params[0][3][0], params[0][3][1])
+def loop(params, show,scr):
+    global cScr
+    cScr=scr
     scr = cv2.blur(scr, (params[0][2][2], params[0][2][2]))
-    dec.track3d(scr)
-    scr = cv2.cvtColor(cScr, cv2.COLOR_BGR2HSV)
+    scr = cv2.cvtColor(scr, cv2.COLOR_BGR2HSV)
     threshes = []
     for p in params:
         if len(p) == 4:
             b = params.index(p) == show
             threshes.append(searchColor(scr, lower=p[0], upper=p[1], thr=p[2], show=b))
+    #dec.track3d(threshes[0])
+    #corner.harrisCorners(threshes[0])
     return threshes

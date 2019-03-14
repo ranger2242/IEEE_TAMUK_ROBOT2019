@@ -32,6 +32,8 @@ def createTrackerByName(trackerType):
             print(t)
 
     return tracker
+
+
 # Read video
 cap = cv2.VideoCapture(0)
 
@@ -47,7 +49,7 @@ ok, frame = cap.read()
 if not ok:
     print('Cannot read video file')
     sys.exit()
-#set bboxes
+# set bboxes
 ## Select boxes
 bboxes = []
 colors = []
@@ -69,7 +71,7 @@ while True:
 
 print('Selected bounding boxes {}'.format(bboxes))
 
-#specify the tracker type
+# specify the tracker type
 trackerType = "CSRT"
 
 # Create MultiTracker object
@@ -78,12 +80,6 @@ multiTracker = cv2.MultiTracker_create()
 # Initialize MultiTracker
 for bbox in bboxes:
     multiTracker.add(createTrackerByName(trackerType), frame, bbox)
-
-
-
-
-
-
 
 # Process video and track objects
 while cap.isOpened():

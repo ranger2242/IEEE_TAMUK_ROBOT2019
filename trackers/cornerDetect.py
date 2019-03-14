@@ -1,10 +1,10 @@
 import cv2
 import numpy as np
 import base
-def harrisCorners(img):
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+def harrisCorners(g):
+    img = cv2.cvtColor(g, cv2.COLOR_GRAY2BGR)
 
-    gray = np.float32(gray)
+    gray = np.float32(g)
     dst = cv2.cornerHarris(gray, 2, 3, 0.04)
     dst = cv2.blur(dst, (2,2))
 

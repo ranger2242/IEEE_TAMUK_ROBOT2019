@@ -9,10 +9,11 @@ class DistanceGUI:
 
     def mainLoop(self, threshArr):
         # make this return (distance, angle)
-        distArr = []
+        boxArr = []
         for i in range(0, len(threshArr)):
             if i == 0:
-                self.distTr.loop(threshArr[i], self.par)
+                boxArr.append(self.distTr.loop(threshArr[i], self.par))
+        return boxArr
 
     def __init__(self):
         self.distTr = DistanceTracker()

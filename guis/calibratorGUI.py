@@ -38,6 +38,19 @@ class CalibratorGUI:
             print(x)
         print("-----------------------------------------------------------")
 
+    def setLow(self):
+        hsv = colorFinder.getCenterVal()
+        for i in range(0, 3):
+            self.hsvScl[i].set(hsv[i])
+
+    def setHigh(self):
+        hsv = colorFinder.getCenterVal()
+        for i in range(3, 6):
+            self.hsvScl[i].set(hsv[i-3])
+
+    def printCtrHSVVal(self):
+        print(colorFinder.getCenterVal())
+
     def getCtrHSVVal(self):
         hsv = colorFinder.getCenterVal()
         v = [
@@ -46,14 +59,19 @@ class CalibratorGUI:
         ]
         for i in range(0, 6):
             self.hsvScl[i].set(v[i])
+    def swap(self,i):
+        t= self.hsvScl[i].get()
+        r = self.hsvScl[i+3].get()
+        self.hsvScl[i].set(r)
+        self.hsvScl[i+3].set(t)
 
     def setAllSliders(self):
         s = self.bounds[int(self.filterSelected.get())]
         low, high, thr, noise = s
         for i in range(0, 3):
             self.hsvScl[i].set(low[i])
-        for i in range(4, 6):
-            self.hsvScl[i].set(high[i - 4])
+        for i in range(3, 6):
+            self.hsvScl[i].set(high[i - 3])
         for i in range(0, 3):
             self.threshScl[i].set(thr[i])
         for i in range(0, 4):
@@ -96,6 +114,15 @@ class CalibratorGUI:
         self.hsvScl[4].set(255)
         self.hsvScl[5].set(255)
         self.hsvFrame.pack(side="top", fill="both", expand=True)
+        self.hsvSubFrame.pack(side="bottom")
+
+        self.hSwap = Button(self.hsvSubFrame, text="Swap h", command=lambda: self.swap(0))
+        self.sSwap = Button(self.hsvSubFrame, text="Swap s", command=lambda: self.swap(1))
+        self.vSwap = Button(self.hsvSubFrame, text="Swap v", command=lambda: self.swap(2))
+
+        self.vSwap.pack(anchor="w", side="right")
+        self.sSwap.pack(anchor="w", side="right")
+        self.hSwap.pack(anchor="w", side="right")
 
         for s in self.hsvScl:
             self.addToHSV(s)
@@ -192,9 +219,15 @@ class CalibratorGUI:
         self.subFrame = Frame(self.selectorFrame)
         self.subFrame.pack(side="bottom")
 
-        self.target = Button(self.subFrame, text="TARGET", command=self.getCtrHSVVal)
+        self.lowTarget = Button(self.subFrame, text="LOW", command=self.setLow)
+        self.highTarget = Button(self.subFrame, text="HIGH", command=self.setHigh)
         self.dump = Button(self.subFrame, text="DUMP", command=self.dumpAll)
-        self.target.pack(anchor="w", side="right")
+        self.ctr = Button(self.subFrame, text="PRINT CENTER", command=self.printCtrHSVVal)
+
+        self.lowTarget.pack(anchor="w", side="right")
+        self.highTarget.pack(anchor="w", side="right")
+        self.ctr.pack(anchor="w", side="left")
+
         self.dump.pack(anchor="w", side="right")
         # =================================================================
         with open('colorConfig.txt', 'r') as filehandle:
@@ -206,7 +239,7 @@ class CalibratorGUI:
                 self.bounds.append(d)
             self.setAllSliders()
 
-    def mainloop(self):
+    def mainloop(self,scr):
 
         self.window.update()
-        return colorFinder.loop(self.bounds, int(self.filterSelected.get()))
+        return colorFinder.loop(self.bounds, int(self.filterSelected.get()),scr)

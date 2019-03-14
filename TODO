@@ -1,0 +1,46 @@
+==setup===
+    manually crop all data
+    pack all crops into single image
+    Make boxfile for tess input
+    Train tesseract with block font
+    Test block letter detection
+
+    -Arduino linking
+        set up pi side drive, rotate, arm commands
+        create link between pi and arduino
+        ensure the ablitiy to send and recieve messages at both ends through serial connection
+        
+
+==calibration====
+    setup color filter calibration with a range of known distances on the blocks
+
+
+==game logic===
+    -on start
+        feed known blocks rectangle into KCF or other multitracker
+    -main loop
+        Keep track of position and direction on board by monitoring turns and drive
+        calculate path to closest known block in terms of direction and distance
+        ? course correction code using tracker
+        set dial to correct position
+        execute pickup command
+        rescan for next block in path
+
+    -end round
+        once all blocks are gathered scan for ship
+        determine where ramp is
+        orient at left side of ramp if possible
+        orient to be straight in line with ramp
+        drive forward set amount
+        align block tray
+        eject appropriate block into hole
+
+
+    ___scan function
+        scan in estimated direction of next block in major path
+        Change hsv bound by distance by getting approximate hsv from range
+        create high and low hsv bounds from approx
+        rescan at all distaces until block is found
+        if no block is found and approximate distance to next in major path block is greater than 0
+        orient self in at next block and go forward 1 foot
+

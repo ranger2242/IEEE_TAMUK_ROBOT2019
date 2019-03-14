@@ -1,42 +1,21 @@
 import cv2
 # Importing the Opencv Library
 import numpy as np
-
+import base
 
 # Importing NumPy,which is the fundamental package for scientific computing with #Python
 
 def track3d(img):
-    # Reading Image
-    cv2.namedWindow("Original Image", cv2.WINDOW_NORMAL)
-    # Creating a Named window to display image
-    cv2.imshow("Original Image", img)
-    # Display image
 
-    # RGB to Gray scale conversion
-    img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    cv2.namedWindow("Gray Converted Image", cv2.WINDOW_NORMAL)
-    # Creating a Named window to display image
-    cv2.imshow("Gray Converted Image", img_gray)
-    # Display Image
-
-    # Noise removal with iterative bilateral filter(removes noise while preserving edges)
-    noise_removal = cv2.bilateralFilter(img_gray, 9, 75, 75)
-    cv2.namedWindow("Noise Removed Image", cv2.WINDOW_NORMAL)
-    # Creating a Named window to display image
-    cv2.imshow("Noise Removed Image", noise_removal)
-    # Display Image
-    # Thresholding the image
-    ret, thresh_image = cv2.threshold(noise_removal, 0, 255, cv2.THRESH_OTSU)
-    cv2.namedWindow("Image after Thresholding", cv2.WINDOW_NORMAL)
-    # Creating a Named window to display image
-    cv2.imshow("Image after Thresholding", thresh_image)
-    # Display Image
-
-    # Applying Canny Edge detection
+    #take in GRAY IMAGE
+    thresh_image =img.copy()
+    img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
     canny_image = cv2.Canny(thresh_image, 250, 255)
-    cv2.namedWindow("Image after applying Canny", cv2.WINDOW_NORMAL)
+    #cv2.namedWindow("Image after applying Canny", cv2.WINDOW_NORMAL)
     # Creating a Named window to display image
-    cv2.imshow("Image after applying Canny", canny_image)
+    #cv2.imshow("Image after applying Canny", canny_image)
+    base.view(True, "canny",canny_image)
+
     # Display Image
     canny_image = cv2.convertScaleAbs(canny_image)
 
@@ -44,9 +23,9 @@ def track3d(img):
     kernel = np.ones((3, 3), np.uint8)
     # Creating the kernel for dilation
     dilated_image = cv2.dilate(canny_image, kernel, iterations=1)
-    cv2.namedWindow("Dilation", cv2.WINDOW_NORMAL)
+    #cv2.namedWindow("Dilation", cv2.WINDOW_NORMAL)
     # Creating a Named window to display image
-    cv2.imshow("Dilation", dilated_image)
+#    cv2.imshow("Dilation", dilated_image)
     # Displaying Image
     #contours = cv2.findContours(dilated_image, 1, 2)
     image, contours, hierarchy = cv2.findContours(dilated_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
