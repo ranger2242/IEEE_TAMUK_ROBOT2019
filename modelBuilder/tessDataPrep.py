@@ -109,7 +109,7 @@ while run:
             y1 = int((y - height) / 2)
             y2 = int(y - (y - height) / 2)
             square[y1:y2, x1:x2] = im
-            s =200/square.shape[1]
+            s =100/square.shape[1]
             square =cv2.resize(square,(int(s*square.shape[1]),int(s*square.shape[0])))
             cv2.imwrite(path, square)
             i += 1

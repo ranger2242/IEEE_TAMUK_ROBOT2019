@@ -6,7 +6,6 @@ from PIL import Image
 
 import base
 import cv2.cv2
-import pytesseract
 
 from geometry.point import Point
 from geometry.rect import Rect
@@ -62,15 +61,6 @@ class DistanceTracker:
 
                     #roi = cv2.dilate(roi, kernel, iterations=1)
 
-
-                    base.view(True, "roi", roi)
-                    im_pil = Image.fromarray(roi)
-                    try:
-                        text = pytesseract.image_to_string(im_pil)
-                        if len(text) > 0:
-                            print(text)
-                    except SystemError:
-                        print("BOUNDS")
 
         return rects
 
